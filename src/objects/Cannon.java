@@ -3,6 +3,7 @@ package objects;
 import javafx.event.EventHandler;
 import javafx.scene.Camera;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -25,6 +26,9 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 	private double           gravity;
 	private Group            root;
 	private double           ventHeight;
+	private Scene 			 scene;
+	private Camera cannonBallCamera;
+	private Camera camera;
 
 	private Group makeBody(double width, double height, double depth, Color cannonColor){
 		Group body = new Group();
@@ -107,8 +111,11 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 		return vent;
 	}
 
-	public Cannon ( Group root, double width, double height, double depth, double islandHeight, double ventHeight, Color cannonColor, double sceneWidth, double sceneHeight, double ySpeed, double gravity, MyAnimationTimer timer, Camera camera ) {
+	public Cannon (Scene scene, Group root, double width, double height, double depth, double islandHeight, double ventHeight, Color cannonColor, double sceneWidth, double sceneHeight, double ySpeed, double gravity, MyAnimationTimer timer, Camera camera, Camera cannonBallCamera ) {
+		this.scene = scene;
 		this.root = root;
+		this.cannonBallCamera = cannonBallCamera;
+		this.camera = camera;
 		
 		Group cannon = new Group ( );
 		super.getChildren ( ).addAll ( cannon );
@@ -164,6 +171,7 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 			this.rotateY.setAngle ( 360 * xRatio );
 		} else if ( MouseEvent.MOUSE_PRESSED.equals ( event.getEventType ( ) ) && this.timer.canAddWeapon ( ) ) {
 			CannonBall cannonBall = new CannonBall (
+					scene,
 					root,
 					this.width / 2,
 					this.cannonColor,
@@ -173,7 +181,9 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 					this.rotateY.getAngle ( ),
 					this.ySpeed,
 					this.gravity,
-					timer
+					timer,
+					camera,
+					cannonBallCamera
 			);
 			root.getChildren ( ).addAll ( cannonBall );
 		}

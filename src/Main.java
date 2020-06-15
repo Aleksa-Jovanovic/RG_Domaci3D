@@ -80,7 +80,7 @@ public class Main extends Application implements GameEventListener {
 		root.getChildren ( ).addAll ( island );
 
 		//Camera--------------------------------------------------------------------------------------------------------
-		CameraController cameraController = new CameraController(Constants.CAMERA_NEAR_CLIP, Constants.CAMERA_FAR_CLIP, scene);
+		CameraController cameraController = new CameraController(Constants.CAMERA_NEAR_CLIP, Constants.CAMERA_FAR_CLIP, scene, this.timer);
 		scene.addEventHandler(KeyEvent.ANY, cameraController);
 		Camera camera = cameraController.getFixedCamera();
 		camera.getTransforms ( ).addAll (
@@ -100,6 +100,7 @@ public class Main extends Application implements GameEventListener {
 					Constants.BOAT_DISTANCE,
 					angle,
 					Constants.BOAT_SPEED,
+					cameraController.getBoatCamera(i),
 					Constants.ISLAND_RADIUS,
 					Constants.DELTA
 			);
@@ -107,11 +108,13 @@ public class Main extends Application implements GameEventListener {
 			root.getChildren ( ).addAll ( boat );
 			movableObjects.add ( boat );
 		}
-		
+
 		
 		this.timer = new MyAnimationTimer ( movableObjects, this );
-		
+
+		cameraController.setAnimationTimer(this.timer);
 		Cannon cannon = new Cannon (
+				scene,
 				root,
 				Constants.CANNON_WIDTH,
 				Constants.CANNON_HEIGHT,
@@ -124,7 +127,8 @@ public class Main extends Application implements GameEventListener {
 				Constants.Y_SPEED,
 				Constants.GRAVITY,
 				this.timer,
-				cameraController.getCannonCamera()
+				cameraController.getCannonCamera(),
+				cameraController.getCannonBallCamera()
 		);
 		root.getChildren ( ).addAll ( cannon );
 		scene.addEventHandler ( MouseEvent.ANY, cannon );

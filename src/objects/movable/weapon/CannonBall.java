@@ -2,7 +2,9 @@ package objects.movable.weapon;
 
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Point3D;
+import javafx.scene.Camera;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
@@ -11,8 +13,6 @@ import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
-import objects.Cannon;
-import objects.movable.MovableObject;
 import timer.MyAnimationTimer;
 
 public class CannonBall extends Weapon {
@@ -20,11 +20,17 @@ public class CannonBall extends Weapon {
 		private double radius;
 		private double landingPointHeight;
 		private Group root;
+		private Camera cannonBallCamera;
+		private Camera cannonCamera;
+		private Scene scene;
 
-		public CannonBallDestination(double radius, double landingPointHeight, Group root) {
+		public CannonBallDestination(double radius, double landingPointHeight, Group root, Camera cannonBallCamera, Camera cannonCamera, Scene scene) {
 			this.radius = radius;
 			this.landingPointHeight = landingPointHeight;
 			this.root = root;
+			this.cannonBallCamera = cannonBallCamera;
+			this.cannonCamera = cannonCamera;
+			this.scene = scene;
 		}
 
 		@Override public boolean reached (double x, double y, double z ) {
@@ -38,6 +44,11 @@ public class CannonBall extends Weapon {
 				);
 				this.root.getChildren().add(landingPoint); //Add splash to root
 
+				//If cannonBall camera is active we need to switch to normal camera
+				if(this.cannonBallCamera == this.scene.getCamera()){
+					scene.setCamera(cannonCamera);
+				}
+
 				//Add animation for fading
 				TranslateTransition animation = new TranslateTransition(Duration.seconds(3),landingPoint);
 				animation.setByY(this.landingPointHeight/2);
@@ -48,6 +59,9 @@ public class CannonBall extends Weapon {
 			return  reached;
 		}
 	}
+
+	private Scene scene;
+	private Camera camera;
 	
 	private static Point3D getSpeed ( double ySpeed, double xAngle, double yAngle ) {
 		Point3D speedVector = new Point3D ( 0, ySpeed, 0 );
@@ -68,18 +82,23 @@ public class CannonBall extends Weapon {
 		
 		return identity;
 	}
-	
-	public CannonBall ( Group root, double radius, Color color, double cannonHeight, double ventHeight, double xAngle, double yAngle, double ySpeed, double gravity, MyAnimationTimer timer ) {
+
+	public CannonBall (Scene scene, Group root, double radius, Color color, double cannonHeight, double ventHeight, double xAngle, double yAngle, double ySpeed, double gravity, MyAnimationTimer timer, Camera cannonCamera, Camera cannonBallCamera) {
 		super (
 				root,
 				CannonBall.getPosition ( cannonHeight, ventHeight, xAngle, yAngle ),
 				CannonBall.getSpeed ( ySpeed, xAngle, yAngle ),
 				new Point3D ( 0, gravity, 0 ),
-				new CannonBallDestination ( radius, 7 * radius, root ),
+				new CannonBallDestination ( radius, 7 * radius, root, cannonBallCamera, cannonCamera, scene ),
 				timer
 		);
+		this.scene = scene;
+		this.camera = cannonBallCamera;
+
 		Sphere ball = new Sphere (radius );
 		ball.setMaterial ( new PhongMaterial ( color ) );
-		super.getChildren ( ).addAll ( ball );
+		super.getChildren ( ).addAll ( ball);
+
+		super.getChildren().add(camera);
 	}
 }

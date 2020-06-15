@@ -47,4 +47,8 @@ public class MyAnimationTimer extends AnimationTimer {
 	public synchronized void setWeapon ( MovableObject weapon ) {
 		this.weapon = weapon;
 	}
+
+	public synchronized  MovableObject getWeapon(){
+		return this.weapon;
+	}
 }

@@ -1,11 +1,14 @@
 package objects.movable;
 
 import javafx.geometry.Point3D;
+import javafx.scene.Camera;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.transform.Affine;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 
 public class Boat extends MovableObject {
 	public static class BoatDestination implements Destination {
@@ -33,7 +36,7 @@ public class Boat extends MovableObject {
 	private static Affine getPosition ( double angle, double distance ) {
 		Affine identity = new Affine (  );
 		
-		identity.appendRotation ( angle, new Point3D ( 0, 0, 0 ), new Point3D ( 0, 1, 0 ) );
+		identity.appendRotation ( angle, new Point3D ( 0, 0, 0 ), new Point3D ( 0, 1, 0 ) ); //Angle, Pivot, Axis!
 		identity.appendTranslation ( 0, 0, distance );
 		
 		return identity;
@@ -61,8 +64,8 @@ public class Boat extends MovableObject {
 	}
 	
 	@Override public void onDestinationReached ( ) { }
-	
-	public Boat ( Group parent, double width, double height, double depth, Color color, double distance, double angle, double speed, double destination, double delta ) {
+
+	public Boat ( Group parent, double width, double height, double depth, Color color, double distance, double angle, double speed, Camera camera, double destination, double delta ) {
 		super (
 				parent,
 				Boat.getPosition ( angle, distance ),
@@ -76,5 +79,12 @@ public class Boat extends MovableObject {
 				new PhongMaterial ( color )
 		);
 		super.getChildren ( ).addAll ( box );
+
+		//Setting up the camera
+		camera.getTransforms().addAll(
+				new Translate(0 , -3*height, 6*depth),
+				new Rotate(-180, Rotate.Y_AXIS)
+		);
+		super.getChildren().add(camera);
 	}
 }
