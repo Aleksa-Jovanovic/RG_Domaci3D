@@ -2,6 +2,7 @@ package objects;
 
 import javafx.event.EventHandler;
 import javafx.scene.Camera;
+import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
@@ -10,6 +11,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
+import main.Main;
 import objects.movable.weapon.CannonBall;
 import timer.MyAnimationTimer;
 
@@ -29,6 +31,17 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 	private Scene 			 scene;
 	private Camera cannonBallCamera;
 	private Camera camera;
+
+	private int ammoNumber;
+	private Group ammoIndicator;
+	private Group ammoIndicatorCannonView;
+	private boolean fixedCameraView = true;
+	private Group cannonGroup;
+
+	private static Cannon cannonRefernce = null;
+	public static Cannon getCannonRefernce(){
+		return cannonRefernce;
+	}
 
 	private Group makeBody(double width, double height, double depth, Color cannonColor){
 		Group body = new Group();
@@ -112,12 +125,19 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 	}
 
 	public Cannon (Scene scene, Group root, double width, double height, double depth, double islandHeight, double ventHeight, Color cannonColor, double sceneWidth, double sceneHeight, double ySpeed, double gravity, MyAnimationTimer timer, Camera camera, Camera cannonBallCamera ) {
+		cannonRefernce = this;
+
 		this.scene = scene;
 		this.root = root;
 		this.cannonBallCamera = cannonBallCamera;
 		this.camera = camera;
+
+		this.ammoNumber = 20;
+		this.ammoIndicator = new Group();
+		this.ammoIndicatorCannonView = new Group();
 		
 		Group cannon = new Group ( );
+		this.cannonGroup = cannon;
 		super.getChildren ( ).addAll ( cannon );
 		
 		Group podium = makeBody(width, height, depth, cannonColor);
@@ -160,8 +180,66 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 		this.ySpeed = ySpeed;
 		this.gravity = gravity;
 		this.ventHeight = ventHeight;
+
+		//AmmoIndicator
+		for(int i = 0; i < ammoNumber ; i ++){
+			Rectangle ammo = new Rectangle(i*4,  0, 2, 10);
+			ammo.setFill(Color.YELLOW);
+			ammo.setDepthTest(DepthTest.DISABLE);
+			ammoIndicator.getChildren().add(ammo);
+		}
+
+		ammoIndicator.getTransforms().addAll(
+				new Translate ( 0, 0, -100),
+				new Rotate ( Main.Constants.CAMERA_X_ANGLE, Rotate.X_AXIS ),
+				new Translate ( -(ammoNumber * 4) / 2, 0, -1600)
+		);
+
+		for(int i = 0; i < ammoNumber ; i ++){
+			Rectangle ammo = new Rectangle(i*4,  0, 2, 10);
+			ammo.setFill(Color.YELLOW);
+			ammo.setDepthTest(DepthTest.DISABLE);
+			ammoIndicatorCannonView.getChildren().add(ammo);
+		}
+
+		ammoIndicatorCannonView.getTransforms().addAll(
+				new Translate(-(ammoNumber * 4) / 2 , -0.7*height, -1*depth)
+		);
+
+
+		this.root.getChildren().addAll(ammoIndicator);
+		//this.cannonGroup.getChildren().add(ammoIndicatorCannonView);
 	}
-	
+
+	//Ammo methods
+	public void addBullet(){
+		ammoNumber++;
+		Rectangle ammo = new Rectangle((ammoNumber- 1 ) * 4,  0, 2, 10);
+		ammo.setFill(Color.YELLOW);
+		ammo.setDepthTest(DepthTest.DISABLE);
+		ammoIndicator.getChildren().add(ammo);
+		ammoIndicatorCannonView.getChildren().add(ammo);
+	}
+
+	public void removeBullet(){
+		ammoNumber--;
+		ammoIndicator.getChildren().remove(ammoNumber);
+		ammoIndicatorCannonView.getChildren().remove(ammoNumber);
+	}
+
+	public void switchAmmoDisplay(boolean toFixedCamera){
+		this.hideAmmoCount();
+		if(toFixedCamera){ // FixedCamera view
+			this.root.getChildren().add(ammoIndicator);
+		}else{ //CannonCamera view
+			this.cannonGroup.getChildren().add(ammoIndicatorCannonView);
+		}
+	}
+	public void hideAmmoCount(){
+		this.cannonGroup.getChildren().remove(ammoIndicatorCannonView);
+		this.root.getChildren().remove(ammoIndicator);
+	}
+
 	@Override public void handle ( MouseEvent event ) {
 		if ( MouseEvent.MOUSE_MOVED.equals ( event.getEventType ( ) ) ) {
 			double xRatio = event.getSceneX ( ) * 2 / this.sceneWidth;
@@ -170,6 +248,10 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 			this.rotateX.setAngle ( -120 * yRatio );
 			this.rotateY.setAngle ( 360 * xRatio );
 		} else if ( MouseEvent.MOUSE_PRESSED.equals ( event.getEventType ( ) ) && this.timer.canAddWeapon ( ) ) {
+
+			if(ammoNumber == 0)
+				return;
+
 			CannonBall cannonBall = new CannonBall (
 					scene,
 					root,
@@ -185,6 +267,8 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 					camera,
 					cannonBallCamera
 			);
+
+			this.removeBullet();
 			root.getChildren ( ).addAll ( cannonBall );
 		}
 	}

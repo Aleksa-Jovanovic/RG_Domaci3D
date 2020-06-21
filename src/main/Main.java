@@ -6,9 +6,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
-import javafx.scene.shape.Cylinder;
-import javafx.scene.shape.DrawMode;
+import javafx.scene.shape.*;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
@@ -73,11 +71,22 @@ public class Main extends Application implements GameEventListener {
 		List<MovableObject> movableObjects = new ArrayList<> ( );
 		Group               root           = new Group ( );
 		Scene               scene          = new Scene ( root, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT, true, SceneAntialiasing.BALANCED );
-		
+
+		//Ocean
 		Box ocean = new Box ( Constants.OCEAN_WIDTH, Constants.OCEAN_HEIGHT, Constants.OCEAN_DEPTH );
 		ocean.setMaterial ( new PhongMaterial ( Color.BLUE ) );
 		//ocean.setDrawMode(DrawMode.LINE);
 		root.getChildren ( ).addAll ( ocean );
+
+		Circle circle1 = new Circle(0, 0, 50, Color.RED);
+		Circle circle2 = new Circle(0, 0, 150, Color.YELLOW);
+		Shape shape1 = Shape.subtract(circle2,circle1);
+		shape1.setFill(Color.YELLOW);
+		Circle circle3 = new Circle(0, 0, 300, new Color(0,1,0,0.5));
+		Circle circle4 = new Circle(0, 0, 500, Color.BLUE);
+		Circle circle5 = new Circle(0, 0, 1000, Color.LIGHTBLUE);
+		root.getChildren ( ).addAll ( shape1 );
+
 		
 		Cylinder island = new Cylinder ( Constants.ISLAND_RADIUS, Constants.ISLAND_HEIGHT );
 		island.setMaterial ( new PhongMaterial ( Color.BROWN ) );

@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
+import objects.Cannon;
 import timer.MyAnimationTimer;
 
 public class CameraController implements EventHandler<KeyEvent> {
@@ -94,12 +95,14 @@ public class CameraController implements EventHandler<KeyEvent> {
             case DIGIT0:
             case NUMPAD0: {
                 this.scene.setCamera(this.fixedCamera);
+                Cannon.getCannonRefernce().switchAmmoDisplay(true);
                 activeBoatCamera = null;
                 break;
             }
             case DIGIT5:
             case NUMPAD5:{
                 this.scene.setCamera(this.cannonCamera);
+                Cannon.getCannonRefernce().switchAmmoDisplay(false);
                 activeBoatCamera = null;
                 break;
             }
@@ -115,24 +118,28 @@ public class CameraController implements EventHandler<KeyEvent> {
             case NUMPAD1:{
                 this.scene.setCamera(this.boatCamera[0]);
                 activeBoatCamera = this.boatCamera[0];
+                Cannon.getCannonRefernce().hideAmmoCount();
                 break;
             }
             case DIGIT2:
             case NUMPAD2:{
                 this.scene.setCamera(this.boatCamera[1]);
                 activeBoatCamera = this.boatCamera[1];
+                Cannon.getCannonRefernce().hideAmmoCount();
                 break;
             }
             case DIGIT3:
             case NUMPAD3:{
                 this.scene.setCamera(this.boatCamera[2]);
                 activeBoatCamera = this.boatCamera[2];
+                Cannon.getCannonRefernce().hideAmmoCount();
                 break;
             }
             case DIGIT4:
             case NUMPAD4:{
                 this.scene.setCamera(this.boatCamera[3]);
                 activeBoatCamera = this.boatCamera[3];
+                Cannon.getCannonRefernce().hideAmmoCount();
                 break;
             }
             //Movement of boat camera

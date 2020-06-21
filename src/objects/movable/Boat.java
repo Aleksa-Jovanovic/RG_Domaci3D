@@ -1,16 +1,29 @@
 package objects.movable;
 
+import javafx.animation.TranslateTransition;
 import javafx.geometry.Point3D;
 import javafx.scene.Camera;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
+import javafx.scene.shape.DrawMode;
+import javafx.scene.shape.MeshView;
+import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
+import javafx.util.Duration;
 
 public class Boat extends MovableObject {
+
+    private double width;
+    private double height;
+    private double depth;
+    private Group parent;
+    private Group boat;
+
+
 	public static class BoatDestination implements Destination {
 		private Point3D destination;
 		private double delta;
@@ -65,6 +78,58 @@ public class Boat extends MovableObject {
 	
 	@Override public void onDestinationReached ( ) { }
 
+	private Group makeBoat(double width, double height, double depth){
+		float xUnit = (float) (width/ 15);
+		float yUnit = (float) (height / 15);
+		float zUnit = (float) (depth / 47);
+
+		Group boat = new Group();
+
+		Box bottomBox = new Box ( width, yUnit * 8, zUnit * 35 );
+		bottomBox.setMaterial (
+				new PhongMaterial ( Color.LIGHTGRAY )
+		);
+		boat.getChildren().add(bottomBox);
+
+		Box topBox = new Box( xUnit * 10, yUnit * 7, zUnit * 14);
+		topBox.setMaterial(new PhongMaterial(Color.DARKGRAY));
+		topBox.getTransforms().add(
+				new Translate(0, -(height) / 2, (zUnit * 35) / 2 - zUnit * 7 - 4 * zUnit)
+		);
+		boat.getChildren().add(topBox);
+
+		//Mesh part
+		float points[] = {
+				0.0f, -yUnit * 4.0f, -(12.0f + 35.0f / 2) * zUnit, //Vrh nosa ----- 0
+				7.5f * xUnit, -yUnit * 4.0f, -(35.0f / 2) * zUnit, //Gore levo ---- 1
+				7.5f * xUnit, yUnit * 4.0f, -(35.0f / 2) * zUnit, //Dole levo ------------- 2
+				-7.5f * xUnit, -yUnit * 4.0f, -(35.0f / 2) * zUnit, //Gore desno -- 3
+				-7.5f * xUnit, yUnit * 4.0f, -(35.0f / 2) * zUnit //Dole desno ------------ 4
+		};
+		float texels[] = {
+				0.5f, 0.5f
+		};
+		int faces[] = {
+			3, 0, 0, 0, 1, 0,
+				2, 0, 0, 0, 4, 0,
+				3, 0, 4, 0, 0, 0,
+				2, 0, 1, 0, 0, 0
+		};
+
+		TriangleMesh triangleMesh = new TriangleMesh();
+		triangleMesh.getPoints().addAll(points);
+		triangleMesh.getTexCoords().addAll(texels);
+		triangleMesh.getFaces().addAll(faces);
+
+		MeshView meshView = new MeshView(triangleMesh);
+		meshView.setDrawMode(DrawMode.FILL);
+		meshView.setMaterial(new PhongMaterial(Color.LIGHTGRAY));
+
+		boat.getChildren().add(meshView);
+
+		return boat;
+	}
+
 	public Boat ( Group parent, double width, double height, double depth, Color color, double distance, double angle, double speed, Camera camera, double destination, double delta ) {
 		super (
 				parent,
@@ -73,12 +138,18 @@ public class Boat extends MovableObject {
 				new Point3D ( 0, 0, 0 ),
 				Boat.getBoatDestination ( angle, destination + depth / 2, delta )
 		);
+
+        this.width = width;
+        this.depth = depth;
+        this.height = height;
+        this.parent = parent;
 		
-		Box box = new Box ( width, height, depth );
-		box.setMaterial (
-				new PhongMaterial ( color )
+		this.boat = this.makeBoat(width, height, depth);
+		boat.getTransforms().add(
+				new Translate(0, - height / 4, 0)
 		);
-		super.getChildren ( ).addAll ( box );
+
+		super.getChildren ( ).addAll ( boat );
 
 		//Setting up the camera
 		camera.getTransforms().addAll(
@@ -87,4 +158,12 @@ public class Boat extends MovableObject {
 		);
 		super.getChildren().add(camera);
 	}
+
+	@Override
+    public void onCollision ( ) {
+        TranslateTransition sink = new TranslateTransition(Duration.seconds(5),this);
+        sink.setByY(this.height / 2);
+        sink.play();
+        sink.setOnFinished(e ->this.parent.getChildren ( ).remove ( this ) );
+    }
 }
