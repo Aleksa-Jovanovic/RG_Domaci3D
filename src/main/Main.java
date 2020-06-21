@@ -1,3 +1,5 @@
+package main;
+
 import javafx.application.Application;
 import javafx.scene.*;
 import javafx.scene.input.KeyEvent;
@@ -6,6 +8,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.DrawMode;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
@@ -19,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main extends Application implements GameEventListener {
-    private static class Constants {
+    public static class Constants {
         public static final String TITLE = "Island defense";
         
         public static final double CAMERA_NEAR_CLIP = 0.1;
@@ -73,6 +76,7 @@ public class Main extends Application implements GameEventListener {
 		
 		Box ocean = new Box ( Constants.OCEAN_WIDTH, Constants.OCEAN_HEIGHT, Constants.OCEAN_DEPTH );
 		ocean.setMaterial ( new PhongMaterial ( Color.BLUE ) );
+		//ocean.setDrawMode(DrawMode.LINE);
 		root.getChildren ( ).addAll ( ocean );
 		
 		Cylinder island = new Cylinder ( Constants.ISLAND_RADIUS, Constants.ISLAND_HEIGHT );

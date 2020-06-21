@@ -1,6 +1,10 @@
 package objects.movable.weapon;
 
-import javafx.animation.TranslateTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+import main.Main;
 import javafx.geometry.Point3D;
 import javafx.scene.Camera;
 import javafx.scene.Group;
@@ -12,7 +16,6 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
-import javafx.util.Duration;
 import timer.MyAnimationTimer;
 
 public class CannonBall extends Weapon {
@@ -40,7 +43,7 @@ public class CannonBall extends Weapon {
 				Cylinder landingPoint = new Cylinder(this.radius, this.landingPointHeight);
 				landingPoint.setMaterial(new PhongMaterial(Color.BLUE));
 				landingPoint.getTransforms().add( //Set the splash position to cannonBall position
-						new Translate(x,y,z)
+						new Translate(x,y + landingPointHeight / 2 - Main.Constants.OCEAN_HEIGHT,z)
 				);
 				this.root.getChildren().add(landingPoint); //Add splash to root
 
@@ -50,10 +53,21 @@ public class CannonBall extends Weapon {
 				}
 
 				//Add animation for fading
-				TranslateTransition animation = new TranslateTransition(Duration.seconds(3),landingPoint);
-				animation.setByY(this.landingPointHeight/2);
-				animation.setOnFinished(event -> this.root.getChildren().remove(landingPoint));
-				animation.play();
+				Timeline animationStart = new Timeline();
+				KeyFrame frameEnd = new KeyFrame(Duration.seconds(2),
+						new KeyValue(landingPoint.translateYProperty(),y-this.landingPointHeight/2 - Main.Constants.OCEAN_HEIGHT),
+						new KeyValue(landingPoint.materialProperty(), new PhongMaterial(Color.WHITE)));
+				animationStart.getKeyFrames().add(frameEnd);
+				animationStart.play();
+
+				Timeline animationEnd = new Timeline();
+				KeyFrame frameStart = new KeyFrame(Duration.seconds(2),
+						new KeyValue(landingPoint.translateYProperty(),y + landingPointHeight / 2 - Main.Constants.OCEAN_HEIGHT),
+						new KeyValue(landingPoint.materialProperty(), new PhongMaterial(Color.BLUE)));
+				animationEnd.getKeyFrames().add(frameStart);
+
+				animationStart.setOnFinished(e -> animationEnd.play());
+				animationEnd.setOnFinished(e -> this.root.getChildren().remove(landingPoint));
 			}
 
 			return  reached;

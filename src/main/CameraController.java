@@ -1,3 +1,5 @@
+package main;
+
 import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.scene.Camera;
@@ -13,7 +15,7 @@ public class CameraController implements EventHandler<KeyEvent> {
     private Scene scene;
     private MyAnimationTimer timer;
 
-    private Camera fixedCamera; //Main camera
+    private Camera fixedCamera; //main.Main camera
     private Camera cannonCamera; //Cannon camera
     private Camera[] boatCamera; //Each boat has one camera
     private Camera activeBoatCamera; //Currently active boat camera
@@ -24,7 +26,7 @@ public class CameraController implements EventHandler<KeyEvent> {
         this.scene = scene;
         this.timer = timer;
 
-        //Main camera
+        //main.Main camera
         this.fixedCamera = new PerspectiveCamera(true);
         this.fixedCamera.setNearClip(nearClip);
         this.fixedCamera.setFarClip(farClip);
