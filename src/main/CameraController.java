@@ -21,6 +21,7 @@ public class CameraController implements EventHandler<KeyEvent> {
     private Camera[] boatCamera; //Each boat has one camera
     private Camera activeBoatCamera; //Currently active boat camera
     private Camera cannonBallCamera; //Cannon ball camera
+    private Camera upCamera; //Sky View
 
 
     public CameraController(double nearClip, double farClip, Scene scene, MyAnimationTimer timer){
@@ -62,6 +63,15 @@ public class CameraController implements EventHandler<KeyEvent> {
                 new Rotate(30, Rotate.X_AXIS),
                 new Translate(0 , 10, -300)
         );*/
+
+        this.upCamera = new PerspectiveCamera(true);
+        this.upCamera.setNearClip(nearClip);
+        this.upCamera.setFarClip(farClip);
+        this.upCamera.getTransforms().addAll(
+                new Rotate ( -90, Rotate.X_AXIS ),
+                new Translate ( 0, 0, Main.Constants.CAMERA_Z )
+        );
+
     }
 
     public Camera getFixedCamera(){
@@ -78,6 +88,10 @@ public class CameraController implements EventHandler<KeyEvent> {
 
     public Camera getCannonBallCamera(){
         return cannonBallCamera;
+    }
+
+    public Camera getUpCamera(){
+        return upCamera;
     }
 
     public boolean cannonBallCameraOn(){
@@ -146,6 +160,13 @@ public class CameraController implements EventHandler<KeyEvent> {
                 Cannon.getCannonRefernce().hideAmmoCount();
                 break;
             }
+            //Sky camera
+            case DIGIT9:{
+                this.scene.setCamera(this.upCamera);
+                activeBoatCamera = null;
+                Cannon.getCannonRefernce().hideAmmoCount();
+                break;
+            }
             //Movement of boat camera
             case LEFT:{
                 if(activeBoatCamera != null){
@@ -188,6 +209,10 @@ public class CameraController implements EventHandler<KeyEvent> {
                     activeBoatCamera.setTranslateZ(newZ);
                     break;
                 }
+            }
+            case T:{
+                Map.getMapRef().toggleShow();
+                break;
             }
             default:{
                 System.out.println(event.getCode());

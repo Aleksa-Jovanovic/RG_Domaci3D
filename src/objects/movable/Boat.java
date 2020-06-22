@@ -172,6 +172,13 @@ public class Boat extends MovableObject {
 		super.setSpeed(newSpeed);
 	}
 
+	public double getAngle(){
+		return angle;
+	}
+	public double getDistance(){
+		return distance;
+	}
+
 	@Override
     public void onCollision ( ) {
         TranslateTransition sink = new TranslateTransition(Duration.seconds(5),this);

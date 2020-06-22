@@ -60,6 +60,8 @@ public class Main extends Application implements GameEventListener {
         public static final double GRAVITY = 0.04;
 
         public static final int MAX_WAVE_NUMBER = 2;
+
+        public static final double MAP_SCALING = 0.2;
     }
     
 	private MyAnimationTimer timer;
@@ -153,6 +155,15 @@ public class Main extends Application implements GameEventListener {
 				cameraController.getCannonCamera(),
 				cameraController.getCannonBallCamera()
 		);
+
+		Map map = new Map(scene, root, cameraController);
+		map.getTransforms().addAll(
+				new Translate ( 0, 0, -180),
+				new Rotate ( Main.Constants.CAMERA_X_ANGLE, Rotate.X_AXIS ),
+				new Translate ( -(Constants.SCENE_WIDTH) / 2.65, 0, -800)
+		);
+		root.getChildren().add(map);
+
 		this.timer.setCannon(cannon);
 		root.getChildren ( ).addAll ( cannon );
 		scene.addEventHandler ( MouseEvent.ANY, cannon );

@@ -59,6 +59,10 @@ public abstract class MovableObject extends Group {
 	public void setSpeed(Point3D spped){
 		this.speed = speed;
 	}
+
+	public Affine getPosition(){
+		return position;
+	}
 	
 	public Bounds getTransformedBounds ( ) {
 		Bounds bounds = super.getLayoutBounds ( );

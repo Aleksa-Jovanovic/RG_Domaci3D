@@ -41,6 +41,9 @@ public class MyAnimationTimer extends AnimationTimer {
 		this.cannon = cannon;
 	}
 
+	public List<MovableObject> getMovableObjects(){
+		return movableObjects;
+	}
 
 	@Override public synchronized void handle ( long now ) {
 		boolean islandHit = this.movableObjects.removeIf ( object -> object.update ( now  ) );
