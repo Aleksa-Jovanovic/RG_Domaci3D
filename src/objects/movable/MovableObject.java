@@ -52,9 +52,21 @@ public abstract class MovableObject extends Group {
 			return false;
 		}
 	}
+
+	public Point3D getSpeed(){
+		return this.speed;
+	}
+	public void setSpeed(Point3D spped){
+		this.speed = speed;
+	}
 	
 	public Bounds getTransformedBounds ( ) {
 		Bounds bounds = super.getLayoutBounds ( );
+		return this.position.transform ( bounds );
+	}
+
+	public Bounds getTransformedBounds (Group group ) {
+		Bounds bounds = group.getLayoutBounds ( );
 		return this.position.transform ( bounds );
 	}
 	

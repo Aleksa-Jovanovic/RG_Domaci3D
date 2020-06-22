@@ -44,6 +44,10 @@ public class CameraController implements EventHandler<KeyEvent> {
             boatCamera[i] = new PerspectiveCamera(true);
             boatCamera[i].setNearClip(nearClip);
             boatCamera[i].setFarClip(farClip);
+            boatCamera[i].getTransforms().addAll(
+                    new Translate(0 , -3 * Main.Constants.BOAT_HEIGHT, 6 * Main.Constants.BOAT_DEPTH),
+                    new Rotate(-180, Rotate.Y_AXIS)
+            );
         }
 
         activeBoatCamera =null;

@@ -14,12 +14,18 @@ import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
+import main.Main;
 
 public class Boat extends MovableObject {
 
     private double width;
     private double height;
     private double depth;
+
+    private  double angle;
+    private double distance;
+    private  double speed;
+
     private Group parent;
     private Group boat;
 
@@ -142,6 +148,11 @@ public class Boat extends MovableObject {
         this.width = width;
         this.depth = depth;
         this.height = height;
+
+        this.speed = speed;
+        this.angle = angle;
+        this.distance = distance;
+
         this.parent = parent;
 		
 		this.boat = this.makeBoat(width, height, depth);
@@ -152,11 +163,13 @@ public class Boat extends MovableObject {
 		super.getChildren ( ).addAll ( boat );
 
 		//Setting up the camera
-		camera.getTransforms().addAll(
-				new Translate(0 , -3*height, 6*depth),
-				new Rotate(-180, Rotate.Y_AXIS)
-		);
 		super.getChildren().add(camera);
+	}
+
+	public void increaseSpeed(){
+		this.speed += Main.Constants.BOAT_SPEED_INCREASE;
+		Point3D newSpeed = this.getSpeed(this.angle, this.distance, this.speed);
+		super.setSpeed(newSpeed);
 	}
 
 	@Override
@@ -166,4 +179,15 @@ public class Boat extends MovableObject {
         sink.play();
         sink.setOnFinished(e ->this.parent.getChildren ( ).remove ( this ) );
     }
+
+    @Override
+	public boolean handleCollision ( MovableObject other ) {
+		if ( this.getTransformedBounds (boat).intersects ( other.getTransformedBounds ( ) ) ) {
+			this.onCollision ( );
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

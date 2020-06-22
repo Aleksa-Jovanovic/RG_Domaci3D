@@ -9,6 +9,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import main.Main;
@@ -35,6 +37,14 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 	private int ammoNumber;
 	private Group ammoIndicator;
 	private Group ammoIndicatorCannonView;
+
+	private Rectangle healthBar;
+	private double health;
+
+	private int numberOfDefetedShips;
+	private Text defetedShipsTextCannonView;
+	private Text defetedShipsText;
+
 	private boolean fixedCameraView = true;
 	private Group cannonGroup;
 
@@ -132,10 +142,20 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 		this.cannonBallCamera = cannonBallCamera;
 		this.camera = camera;
 
-		this.ammoNumber = 20;
+		this.ammoNumber = Main.Constants.MAX_BULLETS;
 		this.ammoIndicator = new Group();
 		this.ammoIndicatorCannonView = new Group();
-		
+
+		this.healthBar = new Rectangle(width * 8, 8);
+		this.health = width * 8;
+		this.healthBar.setFill(Color.RED);
+
+		this.numberOfDefetedShips = 0;
+		this.defetedShipsTextCannonView = new Text("Kills : 0");
+		this.defetedShipsTextCannonView.setFont(new Font(15));
+		this.defetedShipsText = new Text("Kills : 0");
+		this.defetedShipsText.setFont(new Font(30));
+
 		Group cannon = new Group ( );
 		this.cannonGroup = cannon;
 		super.getChildren ( ).addAll ( cannon );
@@ -170,6 +190,24 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 		);
 		//Adding camera to cannon so it rotates with it!
 		cannon.getChildren().add(camera);
+
+		//Adding health indicator
+		this.healthBar.getTransforms().addAll(
+				new Translate(-(width * 4) , -0.5*height, -1*depth)
+		);
+		//this.cannonGroup.getChildren().add(healthBar);
+
+		//Adding kill count
+		this.defetedShipsTextCannonView.getTransforms().addAll(
+				new Translate(-(width * 16), -3.6*height, 8*depth)
+		);
+		//this.cannonGroup.getChildren().add(defetedShipsTextCannonView);
+		this.defetedShipsText.getTransforms().addAll(
+				new Translate ( 0, 0, -100),
+				new Rotate ( Main.Constants.CAMERA_X_ANGLE, Rotate.X_AXIS ),
+				new Translate ( -(sceneWidth) / 3, -340, -800)
+		);
+		this.root.getChildren().add(this.defetedShipsText);
 
 		this.sceneHeight = sceneHeight;
 		this.sceneWidth = sceneWidth;
@@ -212,13 +250,26 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 	}
 
 	//Ammo methods
+	public void addBullets(int ammoCount){
+		for (int i = 0; i < ammoCount; i++){
+			if(ammoNumber == Main.Constants.MAX_BULLETS )
+				break;
+			this.addBullet();
+		}
+	}
+
+
 	public void addBullet(){
 		ammoNumber++;
 		Rectangle ammo = new Rectangle((ammoNumber- 1 ) * 4,  0, 2, 10);
 		ammo.setFill(Color.YELLOW);
 		ammo.setDepthTest(DepthTest.DISABLE);
 		ammoIndicator.getChildren().add(ammo);
+		ammo = new Rectangle((ammoNumber- 1 ) * 4,  0, 2, 10);
+		ammo.setFill(Color.YELLOW);
+		ammo.setDepthTest(DepthTest.DISABLE);
 		ammoIndicatorCannonView.getChildren().add(ammo);
+		System.out.println(ammoNumber);
 	}
 
 	public void removeBullet(){
@@ -231,13 +282,42 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 		this.hideAmmoCount();
 		if(toFixedCamera){ // FixedCamera view
 			this.root.getChildren().add(ammoIndicator);
+			this.root.getChildren().add(defetedShipsText);
 		}else{ //CannonCamera view
 			this.cannonGroup.getChildren().add(ammoIndicatorCannonView);
+			this.cannonGroup.getChildren().add(healthBar);
+			this.cannonGroup.getChildren().add(defetedShipsTextCannonView);
 		}
 	}
 	public void hideAmmoCount(){
+		this.cannonGroup.getChildren().remove(defetedShipsTextCannonView);
+		this.root.getChildren().remove(defetedShipsText);
 		this.cannonGroup.getChildren().remove(ammoIndicatorCannonView);
+		this.cannonGroup.getChildren().remove(healthBar);
 		this.root.getChildren().remove(ammoIndicator);
+	}
+
+	public void lowerHealth(){
+		double lowerBy = 6 + Math.random()*4;
+		double health = this.healthBar.getWidth();
+		health -= lowerBy;
+		if(health < 0)
+			health = 0;
+		this.healthBar.setWidth(health);
+	}
+
+	public double getHealth(){
+		return this.health;
+	}
+
+	public int getNumberOfDefetedShips(){
+		return numberOfDefetedShips;
+	}
+
+	public void incDefetedShipsNumber(){
+		numberOfDefetedShips++;
+		defetedShipsText.setText("Kills : " + String.valueOf(numberOfDefetedShips));
+		defetedShipsTextCannonView.setText("Kills : " + String.valueOf(numberOfDefetedShips));
 	}
 
 	@Override public void handle ( MouseEvent event ) {
@@ -267,7 +347,7 @@ public class Cannon extends Group implements EventHandler<MouseEvent> {
 					camera,
 					cannonBallCamera
 			);
-
+			//lowerHealth();
 			this.removeBullet();
 			root.getChildren ( ).addAll ( cannonBall );
 		}

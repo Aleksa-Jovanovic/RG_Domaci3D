@@ -1,5 +1,6 @@
 package objects.movable.weapon;
 
+import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -56,14 +57,14 @@ public class CannonBall extends Weapon {
 				Timeline animationStart = new Timeline();
 				KeyFrame frameEnd = new KeyFrame(Duration.seconds(2),
 						new KeyValue(landingPoint.translateYProperty(),y-this.landingPointHeight/2 - Main.Constants.OCEAN_HEIGHT),
-						new KeyValue(landingPoint.materialProperty(), new PhongMaterial(Color.WHITE)));
+						new KeyValue(landingPoint.materialProperty(), new PhongMaterial(Color.WHITE), Interpolator.LINEAR));
 				animationStart.getKeyFrames().add(frameEnd);
 				animationStart.play();
 
 				Timeline animationEnd = new Timeline();
 				KeyFrame frameStart = new KeyFrame(Duration.seconds(2),
 						new KeyValue(landingPoint.translateYProperty(),y + landingPointHeight / 2 - Main.Constants.OCEAN_HEIGHT),
-						new KeyValue(landingPoint.materialProperty(), new PhongMaterial(Color.BLUE)));
+						new KeyValue(landingPoint.materialProperty(), new PhongMaterial(Color.BLUE), Interpolator.LINEAR));
 				animationEnd.getKeyFrames().add(frameStart);
 
 				animationStart.setOnFinished(e -> animationEnd.play());
@@ -78,7 +79,7 @@ public class CannonBall extends Weapon {
 	private Camera camera;
 	
 	private static Point3D getSpeed ( double ySpeed, double xAngle, double yAngle ) {
-		Point3D speedVector = new Point3D ( 0, ySpeed, 0 );
+		Point3D speedVector = new Point3D ( 0, ySpeed*2, 0 );
 		Rotate rotateX = new Rotate ( xAngle, Rotate.X_AXIS );
 		Rotate rotateY = new Rotate ( yAngle, Rotate.Y_AXIS );
 		speedVector = rotateX.transform ( speedVector );
